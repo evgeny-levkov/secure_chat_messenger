@@ -60,3 +60,7 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
 3. **Async TCP Server Foundation (Completed August 19, 2026):**
    - Implemented a clean asynchronous `TcpServer` class in `server/core` utilizing `asyncio.start_server`.
    - Enabled robust line-by-line reading with `readline` and connection tracking in `self.writers` indexed by unique client socket addresses.
+4. **Decoupled TCP Server & Observer Pattern Integration (Completed August 20, 2026):**
+   - Refactored the low-level network layer (`TcpServer` in `server/core/tcp_server.py`) to fully decouple it from the application business logic.
+   - Introduced an abstract observer interface (`BaseObserver` in `server/interfaces/base_observer.py`) to propagate connection lifecycle events: connection establishment, message receipt, and disconnection.
+   - Implemented concurrent event dispatching to registered observers using `asyncio.gather` and ensured robust socket resource management (proper closing, wait_closed, and connection registry cleanup in `finally` blocks).

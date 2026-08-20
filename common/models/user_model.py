@@ -6,7 +6,7 @@ from typing import Any
 class User:
     name: str
     email: str
-    id: int | None = None
+    id: int
 
     def to_dict(self) -> dict[str, str| int | None]:
         return {'id': self.id, 'name': self.name, 'email': self.email}
