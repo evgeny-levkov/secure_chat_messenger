@@ -56,13 +56,13 @@ class ChatManager(BaseObserver):
             return None
 
     async def on_client_disconnected(self, client_id: tuple[str, int]) -> bool:
-            delete_id: int = self.senders.pop(client_id, None)
-            if delete_id is None:
-                return False
-            elif self.recipient.pop(delete_id, None) is not None:
-                return True
-            else:
-                return False
+        delete_id: int = self.senders.pop(client_id, None)
+        if delete_id is None:
+            return False
+        elif self.recipient.pop(delete_id, None) is not None:
+            return True
+        else:
+            return False
 
     async def on_client_connected(self, client_id):
-        return await super().on_client_connected(client_id)
+        print(f'Новое подключение! Клиент: {client_id}')
