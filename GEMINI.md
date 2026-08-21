@@ -74,3 +74,7 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
    - Created type-safe serialization schemas (DTOs) `AuthRequest` and `MessageRequest` (in `common/dto/`) utilizing dataclasses and standard JSON serialization.
    - Designed a secure session management mapping (bidirectional routing using `senders` and `recipient` registries) to route messages from sender user IDs to target connection socket tuples `(ip, port)`.
    - Integrated robust UTF-8 and JSON decode error protections to shield the server against malformed client packets.
+6. **Integration Testing & Future Annotations Fix (Completed August 21, 2026):**
+   - Fixed class-level self-referential NameErrors across models and DTOs by adopting `from __future__ import annotations`.
+   - Created standalone server bootstrap (`run_server.py`) and test client simulator (`run_client.py`) scripts.
+   - Successfully executed integration testing showing successful client connection, authentication, and bidirectional message loopback routing.
