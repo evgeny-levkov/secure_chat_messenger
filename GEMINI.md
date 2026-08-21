@@ -69,3 +69,8 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
    - Refactored the low-level network layer (`TcpServer` in `server/core/tcp_server.py`) to fully decouple it from the application business logic.
    - Introduced an abstract observer interface (`BaseObserver` in `server/interfaces/base_observer.py`) to propagate connection lifecycle events: connection establishment, message receipt, and disconnection.
    - Implemented concurrent event dispatching to registered observers using `asyncio.gather` and ensured robust socket resource management (proper closing, wait_closed, and connection registry cleanup in `finally` blocks).
+5. **Concrete Chat Manager & Network DTOs Implementation (Completed August 21, 2026):**
+   - Implemented the concrete observer `ChatManager` (in `server/services/chat_manager.py`) to coordinate chat business rules and server routing.
+   - Created type-safe serialization schemas (DTOs) `AuthRequest` and `MessageRequest` (in `common/dto/`) utilizing dataclasses and standard JSON serialization.
+   - Designed a secure session management mapping (bidirectional routing using `senders` and `recipient` registries) to route messages from sender user IDs to target connection socket tuples `(ip, port)`.
+   - Integrated robust UTF-8 and JSON decode error protections to shield the server against malformed client packets.
