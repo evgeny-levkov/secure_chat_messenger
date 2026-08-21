@@ -1,7 +1,7 @@
 from ..interfaces.base_observer import BaseObserver
-from ...common.dto.auth_request import AuthRequest
-from ...common.dto.message_request import MessageRequest
-from ...common.models.message_model import MessageModel
+from common.dto.auth_request import AuthRequest
+from common.dto.message_request import MessageRequest
+from common.models.message_model import MessageModel
 from ..core.tcp_server import TcpServer
 import json
 import asyncio
