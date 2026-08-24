@@ -78,3 +78,14 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
    - Fixed class-level self-referential NameErrors across models and DTOs by adopting `from __future__ import annotations`.
    - Created standalone server bootstrap (`run_server.py`) and test client simulator (`run_client.py`) scripts.
    - Successfully executed integration testing showing successful client connection, authentication, and bidirectional message loopback routing.
+7. **Client Asynchronous Worker & Thread Isolation (Completed August 24, 2026):**
+   - Implemented `TcpClientThread` (inheriting from `QThread`) to run a dedicated, isolated `asyncio` event loop for network tasks, leaving the main thread free for PyQt6 GUI events.
+   - Implemented `TcpClientWorker` to handle asynchronous operations: socket connection (`asyncio.open_connection`), sequential line reading, and buffered writing.
+   - Integrated thread-safe task submission via `asyncio.run_coroutine_threadsafe` to send messages from the main thread to the background network loop.
+8. **Client Adapter Service & Signal Decoupling (Completed August 24, 2026):**
+   - Implemented `TcpClientService` as the interface adapter translating low-level network events into domain events and data.
+   - Decoupled signaling: separated the network state channel (`connection` signal carrying `bool`) from the payload data channel (`read_signal` carrying `str`), preventing serialization crashes and ensuring clean type mapping.
+9. **Strictness Audit & Context Optimization Decision (August 24, 2026):**
+   - Conducted an audit of the Socratic boundaries and identified key drift episodes.
+   - Confirmed a strict commitment to Socratic Mentor Mode: absolute prohibition on project-specific recipes, variable naming, and copy-pasted snippets in assistant replies.
+   - Established the practice of resetting chat threads when transitioning between architectural layers to prevent context window dilution.

@@ -4,17 +4,18 @@ from common.dto.message_request import MessageRequest
 from common.models.message_model import MessageModel
 from ..core.tcp_server import TcpServer
 import json
-import asyncio
+from ..repository.base_message_repository import BaseMessageRepository
 from datetime import datetime
 
 
 class ChatManager(BaseObserver):
     """Наблюдение за выполнением операций в TCP сервере(Разделение ответственности)"""
-    def __init__(self, tcp_server: TcpServer) -> None:
+    def __init__(self, tcp_server: TcpServer, db: BaseMessageRepository) -> None:
         self.server = tcp_server
         self.senders: dict[tuple[str, int], int] = {}
         self.recipient: dict[int, tuple[str, int]] = {}
         self._user_id = 0
+        self.db = db
 
     async def on_message_received(self, client_id: tuple[str, int], message: bytes):
         """ Получаем сообщение из байт -> json. если статуса нет -> выкидываем; если статус auth -> делаем свою модель данных AuthRequest, 
@@ -38,7 +39,7 @@ class ChatManager(BaseObserver):
                     return None
             elif json_message.get('status') == 'send_message':
                 if client_id not in self.senders:
-                    print('Такого пользоватлея нет!')
+                    print('Такого пользователя нет!')
                     return None
                 mes_req =  MessageRequest.from_dict(json_message) 
                 if mes_req is not None:
@@ -46,8 +47,10 @@ class ChatManager(BaseObserver):
                         print('Клиенты не заригестрированы!!!')
                         return None
                     else:
-                        server_req = (json.dumps(MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.recipient_id).to_dict()) + '\n').encode('utf-8') 
+                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.recipient_id)
+                        server_req = (json.dumps(client_message.to_dict()) + '\n').encode('utf-8') 
                         await self.server.client_write(self.recipient.get(mes_req.recipient_id), server_req)
+                        self.db.save_history(client_message)
                 else:
                     print('Ошибка при сборе MessageRequest')
                     return None
@@ -66,3 +69,6 @@ class ChatManager(BaseObserver):
 
     async def on_client_connected(self, client_id):
         print(f'Новое подключение! Клиент: {client_id}')
+
+    async def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:
+        return self.db.get_history(id_senders, id_recipient)
