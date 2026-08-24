@@ -4,8 +4,15 @@ import asyncio
 
 class TcpClientWorker(QObject):
     read_signal = pyqtSignal(object)
+    connection = pyqtSignal(bool)
+    def __init__(self, host: str, port: int) -> None:
+        super().__init__()
+        self.host = host
+        self.port = port
+
     async def read(self) -> None:
-        self.reader, self.writer = await asyncio.open_connection('127.0.0.1', 8888)
+        self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
+        self.connection.emit(True)
         self.loop = asyncio.get_running_loop()
         while True:
             message = await self.reader.readline()
