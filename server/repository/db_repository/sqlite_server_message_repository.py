@@ -1,10 +1,10 @@
-from ..base_message_repository import BaseMessageRepository
+from ..base_server_message_repository import BaseMessageRepository
 from common.models.message_model import MessageModel
 import sqlite3
 import datetime
 
 
-class SqlLiteMessageRepository(BaseMessageRepository):
+class SqLiteServerMessageRepository(BaseMessageRepository):
     def __init__(self, db: str) -> None:
         self.db = db
         self.connection()

@@ -11,7 +11,7 @@ import json
 
 class TcpClientService(BaseClientService):
     connection = pyqtSignal(bool)
-    authorization = pyqtSignal(bool)
+    authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     def connect(self, host: str, port: int) -> None:
         self.tcp_worker = TcpClientWorker(host, port)
@@ -34,6 +34,6 @@ class TcpClientService(BaseClientService):
     def _on_message_recive(self, server_answer: str | bool) -> None:
         dict_server_answer: dict = json.loads(server_answer)
         if dict_server_answer.get('status', None) == 'auth_success':
-            self.authorization.emit(True)
+            self.authorization.emit(True, dict_server_answer.get('user_id',None))
         elif dict_server_answer.get('message', None) != None:
             self.message.emit(MessageModel.from_dict(dict_server_answer))

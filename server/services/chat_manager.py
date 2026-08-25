@@ -4,7 +4,7 @@ from common.dto.message_request import MessageRequest
 from common.models.message_model import MessageModel
 from ..core.tcp_server import TcpServer
 import json
-from ..repository.base_message_repository import BaseMessageRepository
+from ..repository.base_server_message_repository import BaseMessageRepository
 from datetime import datetime
 
 

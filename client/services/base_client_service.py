@@ -4,7 +4,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 class BaseClientService(QObject, ABC):
     connection = pyqtSignal(bool)
-    authorization = pyqtSignal(bool)
+    authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     @abstractmethod
     def connect(self, host: str, port: int):
