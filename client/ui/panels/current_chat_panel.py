@@ -45,7 +45,6 @@ class CurrentChatPanel(QWidget):
     def send_message(self):
         if self.selected_user_id != None and self.new_messege.text().strip() != '':
             self.viewmodel.send_message(self.new_messege.text(), self.selected_user_id, self.viewmodel.my_name)
-            # self.get_history(self.selected_user_id)
             self.new_messege.clear()
 
     def update_my_message(self, time_now: datetime, my_id: int, sender_name: str, message: str):
