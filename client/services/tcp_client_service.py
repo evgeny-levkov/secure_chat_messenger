@@ -1,9 +1,9 @@
 import asyncio
 from PyQt6.QtCore import QObject, pyqtSignal
 from .base_client_service import BaseClientService
-from ...common.dto.auth_request import AuthRequest
-from ...common.dto.message_request import MessageRequest
-from ...common.models.message_model import MessageModel
+from common.dto.auth_request import AuthRequest
+from common.dto.message_request import MessageRequest
+from common.models.message_model import MessageModel
 from ..core.tcp_client_thread import TcpClientThread
 from ..core.tcp_client_worker import TcpClientWorker
 import json
@@ -27,8 +27,8 @@ class TcpClientService(BaseClientService):
         auth_message = json.dumps(AuthRequest(name, email).to_dict())
         self.tcp_worker.write(auth_message)
 
-    def send_message(self, message: str, recipient_id: int) -> None:
-        send_message = json.dumps(MessageRequest(message, recipient_id).to_dict())
+    def send_message(self, message: str, recipient_id: int, sender_name: str) -> None:
+        send_message = json.dumps(MessageRequest(message, recipient_id, sender_name).to_dict())
         self.tcp_worker.write(send_message)
 
     def _on_message_recive(self, server_answer: str | bool) -> None:

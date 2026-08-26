@@ -47,7 +47,7 @@ class ChatManager(BaseObserver):
                         print('Клиенты не заригестрированы!!!')
                         return None
                     else:
-                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.recipient_id)
+                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.sender_name, mes_req.recipient_id)
                         server_req = (json.dumps(client_message.to_dict()) + '\n').encode('utf-8') 
                         await self.server.client_write(self.recipient.get(mes_req.recipient_id), server_req)
                         self.db.save_history(client_message)

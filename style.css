@@ -1,0 +1,247 @@
+/* Общие настройки для всех виджетов */
+QWidget {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    font-family: "Segoe UI", "Arial", sans-serif;
+    font-size: 10pt;
+}
+
+/* Настройки для списков */
+QListWidget {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 5px;
+    outline: none;
+    color: #ffffff;
+}
+
+QListWidget::item {
+    padding: 5px;
+    border-radius: 3px;
+}
+
+QListWidget::item:selected {
+    background-color: #0078d4;
+    color: #ffffff;
+}
+
+QListWidget::item:hover {
+    background-color: #3a3a3a;
+}
+
+/* Настройки для полей ввода */
+QLineEdit {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: #ffffff;
+    -webkit-background-composite: #0078d4;
+}
+
+QLineEdit:focus {
+    border: 1px solid #0078d4;
+}
+
+/* Настройки для текстовых полей */
+QTextEdit {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 8px;
+    color: #ffffff;
+}
+
+/* Настройки для кнопок */
+QPushButton {
+    background-color: #0078d4;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+QPushButton:pressed {
+    background-color: #005a9e;
+}
+
+QPushButton:disabled {
+    background-color: #3a3a3a;
+    color: #6a6a6a;
+}
+
+/* Настройки для комбобоксов */
+QComboBox {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: #ffffff;
+}
+
+QComboBox:hover {
+    border: 1px solid #0078d4;
+}
+
+QComboBox::drop-down {
+    border: none;
+    background: transparent;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    range: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #ffffff;
+    margin-right: 5px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #202020;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+    -webkit-background-composite: #0078d4;
+}
+
+/* Настройки для спинбоксов */
+QSpinBox, QDoubleSpinBox {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 8px 10px;
+    color: #ffffff;
+}
+
+QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid #0078d4;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button,
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    background-color: #2b2b2b;
+    border: none;
+    width: 20px;
+}
+
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    background-color: #3a3a3a;
+}
+
+/* Настройки для вкладок */
+QTabWidget::pane {
+    background-color: #202020;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+}
+
+QTabBar::tab {
+    background-color: #2b2b2b;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background-color: #0078d4;
+    color: #ffffff;
+}
+
+QTabBar::tab:hover:selected {
+    background-color: #3a3a3a;
+}
+
+/* Настройки для полос прокрутки */
+QScrollBar:vertical {
+    background-color: #2b2b2b;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #3a3a3a;
+    border-radius: 6px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #4a4a4a;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background-color: #2b2b2b;
+    height: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #3a3a3a;
+    border-radius: 6px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #4a4a4a;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+}
+
+/* Настройки для группбоксов */
+QGroupBox {
+    background-color: transparent;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    margin-top: 10px;
+    padding-top: 15px;
+    color: #ffffff;
+}
+
+QGroupBox::title {
+    scroll-margin-inline: margin;
+    left: 10px;
+    padding: 0 5px;
+    background-color: #2b2b2b;
+}
+
+/* Настройки для лейблов */
+QLabel {
+    color: #ffffff;
+    background-color: transparent;
+}
+
+/* Настройки для чекбоксов и радиокнопок */
+QCheckBox, QRadioButton {
+    color: #ffffff;
+    padding: 8px;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #3a3a3a;
+    border-radius: 3px;
+    background-color: #202020;
+}
+
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background-color: #0078d4;
+    border-color: #0078d4;
+}
+
+QRadioButton::indicator {
+    border-radius: 9px;
+}

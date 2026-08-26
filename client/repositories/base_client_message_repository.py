@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ...common.models.message_model import MessageModel
+from common.models.message_model import MessageModel
 
 
 class BaseClientMessageRepository(ABC):
@@ -13,3 +13,7 @@ class BaseClientMessageRepository(ABC):
     @abstractmethod
     def save_message(self, message: MessageModel) -> None:
         pass
+
+    @abstractmethod
+    def get_user_chats(self, id_senders: int) -> dict[int, str] | None:
+            pass

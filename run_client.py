@@ -11,7 +11,7 @@ async def main():
     print(response.decode('utf-8'))
 
     my_id = json.loads(response.decode('utf-8') + '\n')['user_id']
-    new_messege = (json.dumps({'status': 'send_message', 'message': 'привет!', 'recipient': my_id}))
+    new_messege = (json.dumps({'status': 'send_message', 'message': 'привет!', 'sender_name': 'TEST','recipient': my_id}))
     writer.write((new_messege + '\n').encode('utf-8'))
     await writer.drain()
     new_response = await reader.readline()

@@ -7,14 +7,15 @@ from datetime import datetime
 class MessageRequest:
     message : str
     recipient_id: int
+    sender_name: str
 
     def to_dict(self) -> dict[str, str]:
-        return {'status': 'send_message', 'message': self.message, 'recipient': self.recipient_id}
+        return {'status': 'send_message', 'message': self.message,'recipient': self.recipient_id, 'sender_name': self.sender_name}
 
     @classmethod
     def from_dict(cls, model: dict[str, str | int]) -> MessageRequest | None:
         try:
-            return cls(model['message'], model['recipient'])
+            return cls(model['message'], model['recipient'], model['sender_name'])
         except Exception as e:
             print(f'Ошибка создания MessegeRequest:{e}')
             return None
