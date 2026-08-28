@@ -1,10 +1,11 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLineEdit, QPushButton, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLineEdit, QPushButton, QHBoxLayout, QComboBox
 from ...viewmodel.client_viewmodel import ClientViewModel
 from PyQt6.QtCore import Qt, pyqtSignal
 import datetime
 
 
 class CurrentChatPanel(QWidget):
+    fernet = pyqtSignal(str)
     def __init__(self, viewmodel: ClientViewModel):
         super().__init__()
         self.viewmodel = viewmodel
@@ -18,9 +19,12 @@ class CurrentChatPanel(QWidget):
         self.lower_panel = QHBoxLayout()
         self.new_messege = QLineEdit()
         self.send_button = QPushButton('Отправить')
+        self.fernet = QComboBox()
+        self.fernet.addItems(['Fernet', 'Без шифрования'])
         self.send_button.clicked.connect(self.send_message)
         self.lower_panel.addWidget(self.new_messege)
         self.lower_panel.addWidget(self.send_button)
+        self.lower_panel.addWidget(self.fernet)
         self.main_box.addWidget(self.history_message)
         self.main_box.addLayout(self.lower_panel)
         self.viewmodel.message.connect(self.update_my_message)
@@ -44,7 +48,7 @@ class CurrentChatPanel(QWidget):
 
     def send_message(self):
         if self.selected_user_id != None and self.new_messege.text().strip() != '':
-            self.viewmodel.send_message(self.new_messege.text(), self.selected_user_id, self.viewmodel.my_name)
+            self.viewmodel.send_message(self.new_messege.text(), self.selected_user_id, self.viewmodel.my_name, self.fernet.currentText())
             self.new_messege.clear()
 
     def update_my_message(self, time_now: datetime, my_id: int, sender_name: str, message: str):

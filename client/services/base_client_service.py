@@ -14,7 +14,7 @@ class BaseClientService(QObject):
     def authorize(self, name: str, email: str) -> None:
         raise NotImplementedError()
 
-    def send_message(self, message: str, recipient_id: int, sender_name: str):
+    def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str):
         raise NotImplementedError()
 
     def _on_message_recive(self, server_answer: str | bool) -> None:

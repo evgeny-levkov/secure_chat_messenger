@@ -14,6 +14,7 @@ class ChatManager(BaseObserver):
         self.server = tcp_server
         self.senders: dict[tuple[str, int], int] = {}
         self.recipient: dict[int, tuple[str, int]] = {}
+        self.public_keys: dict[int, str] = {}
         self._user_id = 0
         self.db = db
 
@@ -31,7 +32,8 @@ class ChatManager(BaseObserver):
                 if AuthRequest.from_dict(json_message) is not None:
                     self.senders[client_id] = self._user_id
                     self.recipient[self._user_id] = client_id
-                    server_req = (json.dumps({f'status': 'auth_success', 'user_id': self._user_id}) + '\n').encode('utf-8')
+                    self.public_keys[self._user_id] = json_message.get('public_key', None)
+                    server_req = (json.dumps({f'status': 'auth_success', 'user_id':  self._user_id}) + '\n').encode('utf-8')
                     self._user_id += 1
                     write = await self.server.client_write(client_id, server_req)
                 else:
@@ -47,13 +49,21 @@ class ChatManager(BaseObserver):
                         print('Клиенты не заригестрированы!!!')
                         return None
                     else:
-                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.sender_name, mes_req.recipient_id)
+                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.sender_name, 
+                                                      mes_req.recipient_id, mes_req.encryption, mes_req.encryption_key)
                         server_req = (json.dumps(client_message.to_dict()) + '\n').encode('utf-8') 
                         await self.server.client_write(self.recipient.get(mes_req.recipient_id), server_req)
                         self.db.save_history(client_message)
                 else:
                     print('Ошибка при сборе MessageRequest')
                     return None
+            elif json_message.get('status', None) == 'get_public_key':
+                if json_message['recipient'] not in self.public_keys:
+                    print('Нет такого user')
+                    return None
+                else:
+                    server_req = (json.dumps({f'status': 'return_public_key', 'public_key': self.public_keys[json_message['recipient']]}) +  '\n').encode('utf-8')
+                    await self.server.client_write(client_id, server_req)
         except Exception as e:
             print(f'Ошибка обработки ответа: {e}')
             return None

@@ -27,8 +27,8 @@ class TcpClientService(BaseClientService):
         auth_message = json.dumps(AuthRequest(name, email).to_dict())
         self.tcp_worker.write(auth_message)
 
-    def send_message(self, message: str, recipient_id: int, sender_name: str) -> None:
-        send_message = json.dumps(MessageRequest(message, recipient_id, sender_name).to_dict())
+    def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str) -> None:
+        send_message = json.dumps(MessageRequest(message, recipient_id, sender_name, encryption).to_dict())
         self.tcp_worker.write(send_message)
 
     def _on_message_recive(self, server_answer: str | bool) -> None:

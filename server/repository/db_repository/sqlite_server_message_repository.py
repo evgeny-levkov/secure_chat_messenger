@@ -17,14 +17,14 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
         try:
             cur = self.conn.cursor()
             cur.execute('create table if not exists messages(id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, time DATETIME, ' \
-                'sender INT, sender_name VARCHAR(255), recipient INT)')
+                'sender INT, sender_name VARCHAR(255), recipient INT, encryption VARCHAR(255))')
         except Exception as e:
             print(f'Ошибка подключения: {e}')
 
     def save_history(self, message: MessageModel) -> None:
         cur = self.conn.cursor()
-        cur.execute('insert into messages(id, message, time, sender, sender_name, recipient) values (?, ?, ?, ?, ?, ?)', 
-                    (message.id, message.message, message.time, message.sender, message.sender_name, message.recipient))
+        cur.execute('insert into messages(id, message, time, sender, sender_name, recipient, encryption) values (?, ?, ?, ?, ?, ?, ?)', 
+                    (message.id, message.message, message.time, message.sender, message.sender_name, message.recipient, message.encryption))
         self.conn.commit()
 
     def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:
@@ -36,7 +36,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
             if output is not None:
                 for messages in output:
                     res.append(MessageModel(message=messages[1], time=datetime.datetime.fromisoformat(messages[2]), sender=messages[3], 
-                                            sender_name=messages[4], recipient=messages[5], id=messages[0]))
+                                            sender_name=messages[4], recipient=messages[5], encryption=messages[6], id=messages[0]))
             else:
                 return None
         except Exception as e:
