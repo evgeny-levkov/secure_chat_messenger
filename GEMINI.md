@@ -89,3 +89,8 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
    - Conducted an audit of the Socratic boundaries and identified key drift episodes.
    - Confirmed a strict commitment to Socratic Mentor Mode: absolute prohibition on project-specific recipes, variable naming, and copy-pasted snippets in assistant replies.
    - Established the practice of resetting chat threads when transitioning between architectural layers to prevent context window dilution.
+10. **Hybrid Cryptosystem (RSA + Fernet) & ViewModel Integration (Completed August 31, 2026):**
+   - Implemented end-to-end message encryption/decryption in `ClientViewModel` using a hybrid cryptosystem (Fernet keys generated dynamically and encrypted using recipient's public RSA key).
+   - Resolved scope issues and `NameError` bugs by adopting a flat, linear execution flow in `send_message` and `_get_send_message`.
+   - Integrated isolated local message databases by making SQLite client repositories configurable via command line arguments (`sys.argv`), solving SQLite locking issues and chat history collisions.
+   - Verified network-level Zero-Trust encryption by confirming the server only logs ciphertext, while clients display and cache plaintext locally.

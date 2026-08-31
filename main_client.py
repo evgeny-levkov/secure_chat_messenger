@@ -11,7 +11,10 @@ def main():
     app = QApplication(sys.argv)
     with open('style.css', 'r', encoding='utf-8') as f:
         app.setStyleSheet(f.read())
-    db = SqLiteClientMessageRepository('client_sensors.db')
+    if len(sys.argv) > 1:
+        db = SqLiteClientMessageRepository(sys.argv[1])
+    else:
+        db = SqLiteClientMessageRepository('client_sensor.db')
     client_service = TcpClientService()
     viewmodel = ClientViewModel(client_service, db)
     viewmodel.connect('127.0.0.1', 8888)

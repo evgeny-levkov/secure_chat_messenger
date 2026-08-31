@@ -62,7 +62,8 @@ class ChatManager(BaseObserver):
                     print('Нет такого user')
                     return None
                 else:
-                    server_req = (json.dumps({f'status': 'return_public_key', 'public_key': self.public_keys[json_message['recipient']]}) +  '\n').encode('utf-8')
+                    server_req = (json.dumps({f'status': 'return_public_key', 'public_key': self.public_keys[json_message['recipient']],
+                                              'recipient': json_message['recipient']}) +  '\n').encode('utf-8')
                     await self.server.client_write(client_id, server_req)
         except Exception as e:
             print(f'Ошибка обработки ответа: {e}')
