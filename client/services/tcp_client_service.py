@@ -4,8 +4,8 @@ from .base_client_service import BaseClientService
 from common.dto.auth_request import AuthRequest
 from common.dto.message_request import MessageRequest
 from common.models.message_model import MessageModel
-from ..core.tcp_client_thread import TcpClientThread
-from ..core.tcp_client_worker import TcpClientWorker
+from ..network.tcp_client_thread import TcpClientThread
+from ..network.tcp_client_worker import TcpClientWorker
 import json
 from Cryptodome.PublicKey import RSA
 

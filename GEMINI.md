@@ -94,3 +94,7 @@ The goal of this project is to build a **Secure Async Chat Messenger** that enab
    - Resolved scope issues and `NameError` bugs by adopting a flat, linear execution flow in `send_message` and `_get_send_message`.
    - Integrated isolated local message databases by making SQLite client repositories configurable via command line arguments (`sys.argv`), solving SQLite locking issues and chat history collisions.
    - Verified network-level Zero-Trust encryption by confirming the server only logs ciphertext, while clients display and cache plaintext locally.
+11. **Clean Architecture Infrastructure Layer Alignment (Completed September 1, 2026):**
+   - Refactored ambiguous `core/` directories into dedicated `network/` infrastructure packages (`client/network/` and `server/network/`).
+   - Verified strict adherence to Dependency Inversion Principle (DIP): ViewModels depend exclusively on abstract contracts, leaving network sockets and drivers decoupled.
+   - Synchronized all import graphs across client and server entry points.

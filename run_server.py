@@ -1,5 +1,5 @@
 import asyncio
-from server.core.tcp_server import TcpServer
+from server.network.tcp_server import TcpServer
 from server.services.chat_manager import ChatManager
 from server.repository.db_repository.sqlite_server_message_repository import SqLiteServerMessageRepository
 
