@@ -8,12 +8,19 @@ from datetime import datetime
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 import base64
+from ..commands.local_command_manager import LocalCommandManager
+from ..commands.local_edit_command import LocalEditCommand
+from ..commands.local_delete_command import LocalDeleteCommand
 
 
 class ClientViewModel(QObject):
     connect_sign = pyqtSignal(bool)
     authorized = pyqtSignal(bool, int)
     message = pyqtSignal(datetime, int, str, str, str)
+    edited_message = pyqtSignal(MessageModel | None)
+    undo_edit_message = pyqtSignal(MessageModel)
+    deleted_message = pyqtSignal(MessageModel | None)
+    undo_delete_message = pyqtSignal(MessageModel)
     def __init__(self, client_service: BaseClientService, db: BaseClientMessageRepository) -> None:
         super().__init__()
         self.client_service = client_service
@@ -24,6 +31,7 @@ class ClientViewModel(QObject):
         self.db = db
         self.encrytion_keys: dict[int, BaseEncryption] = {}
         self.recipients_public_key: dict[int, str] = {}
+        self.command = LocalCommandManager()
         
     def connect(self, host: str, port: int) -> None:
         self.client_service.connect(host, port)
@@ -87,3 +95,33 @@ class ClientViewModel(QObject):
 
     def _on_public_key_received(self, public_key: str, recipient: int):
         self.recipients_public_key[recipient] = public_key
+
+    def edit_message(self, message: str, id: int):
+        editor = LocalEditCommand(id, self.db, message)
+        editor.edit_message.connect(self.edit_message_handler)
+        editor.unded.connect(self.unded_edit_handler)
+        self.command.execute(editor)
+
+    def edit_message_handler(self, new_message: MessageModel | None):
+        self.edited_message.emit(new_message)
+
+    def unded_edit_handler(self, old_message: MessageModel):
+        self.undo_edit_message.emit(old_message)
+
+    def delete_message(self, id: int):
+        deleter = LocalDeleteCommand(id, self.db)
+        deleter.delete.connect(self.delete_message_handler)
+        deleter.unded.connect(self.unded_delete_handler)
+        self.command.execute(deleter)
+
+    def delete_message_handler(self, delete_message: MessageModel | None):
+        self.deleted_message.emit(delete_message)
+
+    def unded_delete_handler(self, old_message: MessageModel):
+        self.undo_delete_message.emit(old_message)
+
+    def undo(self):
+        self.command.undo()
+
+    def redo(self):
+        self.command.redo()

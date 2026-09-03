@@ -56,3 +56,36 @@ class SqLiteClientMessageRepository(BaseClientMessageRepository):
             print(f'Ошибка загрузки данных: {e}')
             return None
         return res
+
+    def delete_message(self, id: int) -> MessageModel | None:
+        try:
+            cur = self.conn.cursor()
+            res = cur.execute('DELETE FROM messages WHERE id = ? '\
+                        'RETURNING id, message, time, sender, sender_name, recipient, encryption', (id,)).fetchall()
+            self.conn.commit()
+            if res:
+                return MessageModel(message=res[0][1], time=datetime.datetime.fromisoformat(res[0][2]), sender=res[0][3], 
+                                    sender_name=res[0][4], recipient=res[0][5], encryption=res[0][6], id=res[0][0])
+            else:
+                return None
+        except Exception as e:
+            print(f"Ошибка при удалении сообщения: {e}")
+            return None
+
+    def edit_message(self, id: int, message: str):
+        try:
+            cur = self.conn.cursor()
+            old_res = cur.execute('SELECT * from messages WHERE id = ?', (id,)).fetchone()
+            new_res = cur.execute('UPDATE messages SET message = ? WHERE id = ? ' \
+            'RETURNING id, message, time, sender, sender_name, recipient, encryption', (message, id)).fetchone()
+            self.conn.commit()
+            if new_res and old_res:
+                return (MessageModel(message=old_res[1], time=datetime.datetime.fromisoformat(old_res[2]), sender=old_res[3], 
+                                                                    sender_name=old_res[4], recipient=old_res[5], encryption=old_res[6], id=old_res[0]),
+                        MessageModel(message=new_res[1], time=datetime.datetime.fromisoformat(new_res[2]), sender=new_res[3], 
+                                                    sender_name=new_res[4], recipient=new_res[5], encryption=new_res[6], id=new_res[0]))
+            else:
+                return None
+        except Exception as e:
+                print(f"Ошибка при изменении сообщения: {e}")
+                return None

@@ -1,11 +1,14 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLineEdit, QPushButton, QHBoxLayout, QComboBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLineEdit, QPushButton, QHBoxLayout, QComboBox, QMenu
+from PyQt6.QtGui import QShortcut, QKeySequence
 from ...viewmodel.client_viewmodel import ClientViewModel
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 import datetime
 
 
 class CurrentChatPanel(QWidget):
     fernet = pyqtSignal(str)
+    edit = pyqtSignal(bool)
+    delete = pyqtSignal(bool)
     def __init__(self, viewmodel: ClientViewModel):
         super().__init__()
         self.viewmodel = viewmodel
@@ -16,6 +19,8 @@ class CurrentChatPanel(QWidget):
         self.main_box = QVBoxLayout()
         self.main_box.setContentsMargins(0, 0, 0, 0)
         self.history_message = QListWidget()
+        self.history_message.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.history_message.customContextMenuRequested.connect(self._show_context_menu)
         self.lower_panel = QHBoxLayout()
         self.new_messege = QLineEdit()
         self.send_button = QPushButton('Отправить')
@@ -28,6 +33,14 @@ class CurrentChatPanel(QWidget):
         self.main_box.addWidget(self.history_message)
         self.main_box.addLayout(self.lower_panel)
         self.viewmodel.message.connect(self.update_my_message)
+        self.viewmodel.deleted_message.connect(self.update_changed_messades)
+        self.viewmodel.edited_message.connect(self.update_changed_messades)
+        self.viewmodel.undo_delete_message.connect(self.update_changed_messades)
+        self.viewmodel.undo_edit_message.connect(self.update_changed_messades)
+        self.shortcut_undo = QShortcut(QKeySequence("Ctrl+Z"), self)
+        self.shortcut_undo.activated.connect(self.undo)
+        self.shortcut_redo = QShortcut(QKeySequence("Ctrl+Shift+Z"), self)
+        self.shortcut_redo.activated.connect(self.redo)
         self.setLayout(self.main_box)
 
     def get_history(self, selected_user_id: int):
@@ -38,10 +51,12 @@ class CurrentChatPanel(QWidget):
             if messege.sender == self.viewmodel.my_id:
                 smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
                 smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignRight)
+                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.id)
                 self.history_message.addItem(smb_messege)
             else:
                 smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
                 smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignLeft)
+                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.id)
                 self.history_message.addItem(smb_messege)
 
         hisory.clear()
@@ -62,3 +77,30 @@ class CurrentChatPanel(QWidget):
             smb_messege = QListWidgetItem(f'{sender_name}: {message}')
             smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignLeft)
             self.history_message.addItem(smb_messege)
+
+    def _show_context_menu(self, pos: QPoint):
+        item = self.history_message.itemAt(pos) 
+        if item is None:
+            return
+        menu = QMenu(self)
+        action_edit = menu.addAction("Редактировать")
+        action_delete = menu.addAction("Удалить")
+        action = menu.exec(self.history_message.mapToGlobal(pos))
+        if action == action_edit:
+            menu.close()
+            self.viewmodel.edit_message(self.new_messege.text(), item.data(Qt.ItemDataRole.UserRole))
+        elif action == action_delete:
+            menu.close()
+            self.viewmodel.delete_message(item.data(Qt.ItemDataRole.UserRole))
+
+    def update_changed_messades(self, *args):
+        if self.selected_user_id is not None:
+            self.get_history(self.selected_user_id)
+        else:
+            pass
+
+    def undo(self):
+        self.viewmodel.undo()
+
+    def redo(self):
+        self.viewmodel.redo()

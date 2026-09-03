@@ -17,3 +17,11 @@ class BaseClientMessageRepository(ABC):
     @abstractmethod
     def get_user_chats(self, id_senders: int) -> dict[int, str] | None:
             pass
+
+    @abstractmethod
+    def delete_message(self, id: int) -> MessageModel | None:
+         pass
+
+    @abstractmethod
+    def edit_message(self, id: int, message: str) -> tuple[MessageModel, MessageModel] | None:
+         pass
