@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from common.models.message_model import MessageModel
+from common.models.user_model import UserModel
 
 
 class BaseMessageRepository(ABC):
@@ -16,4 +17,16 @@ class BaseMessageRepository(ABC):
 
     @abstractmethod
     def get_user_chats(self, id_senders: int) -> dict[int, str] | None:
+        pass
+
+    @abstractmethod
+    def check_user(self, email: str) -> UserModel | None:
+        pass
+
+    @abstractmethod
+    def add_new_user(self, name: str, email: str, public_key: str) ->int |  None:
+        pass
+
+    @abstractmethod
+    def get_public_key(self, user_id: int) -> str | None:
         pass

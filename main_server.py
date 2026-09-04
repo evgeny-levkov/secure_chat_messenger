@@ -6,7 +6,7 @@ import sys
 
 
 async def main():
-    db = SqLiteServerMessageRepository('greenhouse_sensors.db')
+    db = SqLiteServerMessageRepository('server.db')
     server = TcpServer()
     manager = ChatManager(server, db)
     server.add_observer(manager)

@@ -15,11 +15,10 @@ class TcpClientService(BaseClientService):
     authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     public_key_received = pyqtSignal(str, int)
-    def __init__(self):
+    def __init__(self, public_key: str, private_key: str):
         super().__init__()
-        key = RSA.generate(2048)
-        self.public_key = key.publickey().exportKey().decode('utf-8')
-        self.private_key = key.exportKey().decode('utf-8')
+        self.public_key = public_key
+        self.private_key = private_key
         
     def connect(self, host: str, port: int) -> None:
         self.tcp_worker = TcpClientWorker(host, port)

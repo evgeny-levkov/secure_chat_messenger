@@ -1,11 +1,11 @@
 from .base_command import BaseCommand
 from ..repositories.base_client_message_repository import BaseClientMessageRepository
 from PyQt6.QtCore import pyqtSignal
-from ...common.models.message_model import MessageModel
+from common.models.message_model import MessageModel
 
 
 class LocalEditCommand(BaseCommand):
-    edit_message = pyqtSignal(MessageModel | None)
+    edit_message = pyqtSignal(object)
     unded = pyqtSignal(MessageModel)
     def __init__(self, id: int, db: BaseClientMessageRepository, message: str):
         super().__init__()

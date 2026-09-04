@@ -1,5 +1,6 @@
 from ..base_client_message_repository import BaseClientMessageRepository
 from common.models.message_model import MessageModel
+from common.models.user_model import UserModel
 import sqlite3
 import datetime
 
@@ -14,6 +15,7 @@ class SqLiteClientMessageRepository(BaseClientMessageRepository):
             self.conn = sqlite3.connect(self.db, check_same_thread = False)
             self.conn.execute('create table if not exists messages(id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, time DATETIME, ' \
             'sender INT, sender_name VARCHAR(255), recipient INT, encryption VARCHAR(255))')
+            self.conn.execute('create table if not exists keys(private_key TEXT, public_key TEXT)')
         except Exception as e:
             print(f"Ошибка подключения к БД: {e}")
 
@@ -89,3 +91,21 @@ class SqLiteClientMessageRepository(BaseClientMessageRepository):
         except Exception as e:
                 print(f"Ошибка при изменении сообщения: {e}")
                 return None
+    
+    def save_keys(self, private_key: str, public_key: str) -> None:
+        try:
+            cur = self.conn.cursor()
+            cur.execute('insert into keys(private_key, public_key) values(?, ?)', (private_key, public_key))
+            self.conn.commit()
+        except Exception as e:
+            print(f'Ошибка сохранения ключей:{e}')
+            return None
+
+    def get_keys(self) -> tuple[str, str] | None:
+        try:
+            cur = self.conn.cursor()
+            output = cur.execute('select * from keys').fetchone()
+            return output
+        except Exception as e:
+            print(f'Ошибка получения ключей:{e}')
+            return None

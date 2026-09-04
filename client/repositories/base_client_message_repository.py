@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from common.models.message_model import MessageModel
+from common.models.user_model import UserModel
 
 
 class BaseClientMessageRepository(ABC):
@@ -24,4 +25,12 @@ class BaseClientMessageRepository(ABC):
 
     @abstractmethod
     def edit_message(self, id: int, message: str) -> tuple[MessageModel, MessageModel] | None:
+         pass
+
+    @abstractmethod
+    def save_keys(self, private_key: str, public_key: str) -> None:
+         pass
+
+    @abstractmethod
+    def get_keys(self) -> tuple[str, str] | None:
          pass

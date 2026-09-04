@@ -8,8 +8,6 @@ class BaseClientService(QObject):
     public_key_received = pyqtSignal(str, int)
     def __init__(self):
         super().__init__()
-        self.public_key = None
-        self.private_key = None
 
     def connect(self, host: str, port: int):
         raise NotImplementedError()

@@ -17,9 +17,9 @@ class ClientViewModel(QObject):
     connect_sign = pyqtSignal(bool)
     authorized = pyqtSignal(bool, int)
     message = pyqtSignal(datetime, int, str, str, str)
-    edited_message = pyqtSignal(MessageModel | None)
+    edited_message = pyqtSignal(object)
     undo_edit_message = pyqtSignal(MessageModel)
-    deleted_message = pyqtSignal(MessageModel | None)
+    deleted_message = pyqtSignal(object)
     undo_delete_message = pyqtSignal(MessageModel)
     def __init__(self, client_service: BaseClientService, db: BaseClientMessageRepository) -> None:
         super().__init__()

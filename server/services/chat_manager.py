@@ -2,6 +2,7 @@ from ..interfaces.base_observer import BaseObserver
 from common.dto.auth_request import AuthRequest
 from common.dto.message_request import MessageRequest
 from common.models.message_model import MessageModel
+from common.models.user_model import UserModel
 from ..network.tcp_server import TcpServer
 import json
 from ..repository.base_server_message_repository import BaseMessageRepository
@@ -14,8 +15,6 @@ class ChatManager(BaseObserver):
         self.server = tcp_server
         self.senders: dict[tuple[str, int], int] = {}
         self.recipient: dict[int, tuple[str, int]] = {}
-        self.public_keys: dict[int, str] = {}
-        self._user_id = 0
         self.db = db
 
     async def on_message_received(self, client_id: tuple[str, int], message: bytes):
@@ -29,12 +28,16 @@ class ChatManager(BaseObserver):
                 print(f'Неверный формат ответа')
                 return None
             elif json_message.get('status', None) == 'auth': 
+
                 if AuthRequest.from_dict(json_message) is not None:
-                    self.senders[client_id] = self._user_id
-                    self.recipient[self._user_id] = client_id
-                    self.public_keys[self._user_id] = json_message.get('public_key', None)
-                    server_req = (json.dumps({f'status': 'auth_success', 'user_id':  self._user_id}) + '\n').encode('utf-8')
-                    self._user_id += 1
+                    user = self.db.check_user(json_message['email'])
+                    if user is None:
+                        _user_id = self.db.add_new_user(json_message['name'], json_message['email'], json_message['public_key'])
+                    else:
+                        _user_id = user.id
+                    self.senders[client_id] = _user_id
+                    self.recipient[_user_id] = client_id
+                    server_req = (json.dumps({f'status': 'auth_success', 'user_id':  _user_id}) + '\n').encode('utf-8')
                     write = await self.server.client_write(client_id, server_req)
                 else:
                     print('Ошибка при сборе AuthRequest')
@@ -58,11 +61,12 @@ class ChatManager(BaseObserver):
                     print('Ошибка при сборе MessageRequest')
                     return None
             elif json_message.get('status', None) == 'get_public_key':
-                if json_message['recipient'] not in self.public_keys:
+                user_public_key = self.db.get_public_key(json_message['recipient'])
+                if user_public_key is None:
                     print('Нет такого user')
                     return None
                 else:
-                    server_req = (json.dumps({f'status': 'return_public_key', 'public_key': self.public_keys[json_message['recipient']],
+                    server_req = (json.dumps({f'status': 'return_public_key', 'public_key': user_public_key,
                                               'recipient': json_message['recipient']}) +  '\n').encode('utf-8')
                     await self.server.client_write(client_id, server_req)
         except Exception as e:
