@@ -11,7 +11,7 @@ class MainWindow(QMainWindow):
         self.initialize_ui()
         
     def initialize_ui(self):
-        self.setMinimumSize(900, 600)
+        self.setMinimumSize(1200, 800)
         self.stack_widget = QStackedWidget()
         self.auth_window = AuthWindow(self.viewmodel)
         self.chat_window = ChatWindow(self.viewmodel)
