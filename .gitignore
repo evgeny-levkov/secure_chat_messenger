@@ -1,3 +1,4 @@
 my_file.txt
 chaaat.txt
-greenhouse_sensors.db
+greenhouse_sensors.db*.db
+*.db
