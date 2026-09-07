@@ -5,12 +5,12 @@ from ...viewmodel.client_viewmodel import ClientViewModel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, viewmodel: ClientViewModel):
+    def __init__(self, viewmodel: ClientViewModel) -> None:
         super().__init__()
         self.viewmodel = viewmodel
         self.initialize_ui()
         
-    def initialize_ui(self):
+    def initialize_ui(self) -> None:
         self.setMinimumSize(1200, 800)
         self.stack_widget = QStackedWidget()
         self.auth_window = AuthWindow(self.viewmodel)
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.stack_widget)
 
-    def switch_auth_window(self, client_id: int):
+    def switch_auth_window(self, client_id: int) -> None:
         self.stack_widget.setCurrentIndex(1)
         self.client_id = client_id
         self.chat_window.chat_list_panel.fill_chats()

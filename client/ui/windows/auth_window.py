@@ -5,13 +5,13 @@ from ...viewmodel.client_viewmodel import ClientViewModel
 
 class AuthWindow(QWidget):
     switch_window = pyqtSignal(int)
-    def __init__(self, viewmodel: ClientViewModel):
+    def __init__(self, viewmodel: ClientViewModel) -> None:
         super().__init__()
         self.viewmodel = viewmodel
         self.initialize_ui()
         self.viewmodel.authorized.connect(self.get_switch_window)
 
-    def initialize_ui(self):
+    def initialize_ui(self) -> None:
         self.main_layout = QVBoxLayout()
         self.name_label = QLabel('Введите имя пользователя:')
         self.name_widget = QLineEdit()
@@ -28,10 +28,10 @@ class AuthWindow(QWidget):
 
         self.setLayout(self.main_layout)
 
-    def authorize(self):
+    def authorize(self) -> None:
         self.viewmodel.authorization(self.name_widget.text(), self.email_widget.text())
 
-    def get_switch_window(self, sig: bool, client_id: int):
+    def get_switch_window(self, sig: bool, client_id: int) -> None:
         if sig:
             self.switch_window.emit(client_id)
         else:

@@ -6,7 +6,7 @@ import datetime
 
 
 class SqLiteClientMessageRepository(BaseClientMessageRepository):
-    def __init__(self, db) -> None:
+    def __init__(self, db: str) -> None:
         self.db = db
         self.connect()
 
@@ -42,7 +42,7 @@ class SqLiteClientMessageRepository(BaseClientMessageRepository):
         'ON CONFLICT (uuid) DO NOTHING', (message.uuid, message.message, message.time, message.sender, message.sender_name, message.recipient, message.encryption))
         self.conn.commit()
 
-    def get_user_chats(self, id_senders):
+    def get_user_chats(self, id_senders: int) -> dict[int, str] | None:
         res = {}
         try:
             cur = self.conn.cursor()
@@ -74,7 +74,7 @@ class SqLiteClientMessageRepository(BaseClientMessageRepository):
             print(f"Ошибка при удалении сообщения: {e}")
             return None
 
-    def edit_message(self, id: str, message: str):
+    def edit_message(self, id: str, message: str) -> tuple[MessageModel, MessageModel] | None:
         try:
             cur = self.conn.cursor()
             old_res = cur.execute('SELECT * from messages WHERE uuid = ?', (id,)).fetchone()

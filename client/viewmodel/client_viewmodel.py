@@ -52,7 +52,7 @@ class ClientViewModel(QObject):
         self.my_id = user_id
         self.authorized.emit(sig, user_id)
 
-    def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str):
+    def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str) -> None:
         uuid = str(uuid4())
         time_now = datetime.now()
         if self.encrytion_keys.get(recipient_id, None) == None:    
@@ -97,38 +97,38 @@ class ClientViewModel(QObject):
         self.client_service.request_public_key(id_recipient)
         return self.db.get_history(id_senders, id_recipient)
 
-    def get_user_chat(self, id_senders: int):
+    def get_user_chat(self, id_senders: int) -> dict[int, str] | None:
         return self.db.get_user_chats(id_senders)
 
-    def _on_public_key_received(self, public_key: str, recipient: int):
+    def _on_public_key_received(self, public_key: str, recipient: int) -> None:
         self.recipients_public_key[recipient] = public_key
 
-    def edit_message(self, message: str, id: int):
+    def edit_message(self, message: str, id: str) -> None:
         editor = LocalEditCommand(id, self.db, message)
         editor.edit_message.connect(self.edit_message_handler)
         editor.unded.connect(self.unded_edit_handler)
         self.command.execute(editor)
 
-    def edit_message_handler(self, new_message: MessageModel | None):
+    def edit_message_handler(self, new_message: MessageModel | None) -> None:
         self.client_service.send_edit_message(new_message.uuid, new_message.recipient, new_message.message)
         self.edited_message.emit(new_message)
 
-    def unded_edit_handler(self, old_message: MessageModel):
+    def unded_edit_handler(self, old_message: MessageModel) -> None:
         self.client_service.send_edit_message(old_message.uuid, old_message.recipient, old_message.message)
         self.undo_edit_message.emit(old_message)
 
-    def delete_message(self, id: str):
+    def delete_message(self, id: str) -> None:
         deleter = LocalDeleteCommand(id, self.db)
         deleter.delete.connect(self.delete_message_handler)
         deleter.unded.connect(self.unded_delete_handler)
         self.command.execute(deleter)
 
-    def delete_message_handler(self, delete_message: MessageModel | None):
+    def delete_message_handler(self, delete_message: MessageModel | None) -> None:
         if delete_message:
             self.client_service.send_delete_message(delete_message.uuid, delete_message.recipient)
             self.deleted_message.emit(delete_message)
 
-    def unded_delete_handler(self, old_message: MessageModel):
+    def unded_delete_handler(self, old_message: MessageModel) -> None:
         if old_message.encryption != "Без шифрования":
             rsa = RSA.importKey(self.recipients_public_key[old_message.recipient])
             cipher_rsa = PKCS1_OAEP.new(rsa)
@@ -142,16 +142,16 @@ class ClientViewModel(QObject):
                     old_message.encryption, enc_key_str)
         self.undo_delete_message.emit(old_message)
 
-    def undo(self):
+    def undo(self) -> None:
         self.command.undo()
 
-    def redo(self):
+    def redo(self) -> None:
         self.command.redo()
 
-    def server_delete_handle(self, uuid: str):
+    def server_delete_handle(self, uuid: str) -> None:
         self.db.delete_message(uuid)
         self.server_deleted_message.emit(uuid)
 
-    def server_edit_handler(self, uuid: str, message: str):
+    def server_edit_handler(self, uuid: str, message: str) -> None:
         self.db.edit_message(uuid, message)
         self.server_edited_message.emit(uuid, message)

@@ -17,7 +17,7 @@ class ChatManager(BaseObserver):
         self.recipient: dict[int, tuple[str, int]] = {}
         self.db = db
 
-    async def on_message_received(self, client_id: tuple[str, int], message: bytes):
+    async def on_message_received(self, client_id: tuple[str, int], message: bytes) -> None:
         """ Получаем сообщение из байт -> json. если статуса нет -> выкидываем; если статус auth -> делаем свою модель данных AuthRequest, 
         запоминаем отправителя и получателя; формируем ответ(байты) и отправляем клиенту; если статус send_message -> проверяем что такой
         клиент зарегистрирован, создаём модель MessageRequest из неё формируем ответ сервера через MessageModel и через client_write 
@@ -97,7 +97,7 @@ class ChatManager(BaseObserver):
         else:
             return False
 
-    async def on_client_connected(self, client_id):
+    async def on_client_connected(self, client_id: tuple[str, int]) -> None:
         print(f'Новое подключение! Клиент: {client_id}')
 
     async def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:

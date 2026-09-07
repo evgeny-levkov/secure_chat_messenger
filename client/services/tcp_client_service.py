@@ -17,7 +17,7 @@ class TcpClientService(BaseClientService):
     public_key_received = pyqtSignal(str, int)
     deleted = pyqtSignal(str)
     edited = pyqtSignal(str, str)
-    def __init__(self, public_key: str, private_key: str):
+    def __init__(self, public_key: str, private_key: str) -> None:
         super().__init__()
         self.public_key = public_key
         self.private_key = private_key
@@ -58,10 +58,10 @@ class TcpClientService(BaseClientService):
             self.message.emit(MessageModel.from_dict(dict_server_answer))
         
 
-    def send_delete_message(self, uuid: str, recipient_id: int):
+    def send_delete_message(self, uuid: str, recipient_id: int) -> None:
         send_message = json.dumps({'status': 'delete_message', 'uuid': uuid, 'recipient': recipient_id})
         self.tcp_worker.write(send_message)
 
-    def send_edit_message(self, uuid: str, recipient_id: int, message: str):
+    def send_edit_message(self, uuid: str, recipient_id: int, message: str) -> None:
         send_message = json.dumps({'status': 'edit_message', 'uuid': uuid, 'recipient': recipient_id, 'message': message})
         self.tcp_worker.write(send_message)

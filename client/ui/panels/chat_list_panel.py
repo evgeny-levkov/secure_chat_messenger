@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 
 class ChatListPanel(QWidget):
     chat_selected = pyqtSignal(int)
-    def __init__(self, viewmodel: ClientViewModel):
+    def __init__(self, viewmodel: ClientViewModel) -> None:
         super().__init__()
         self.viewmodel = viewmodel
         self.initialize_ui()

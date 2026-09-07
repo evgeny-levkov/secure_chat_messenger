@@ -7,7 +7,7 @@ from common.models.message_model import MessageModel
 class LocalEditCommand(BaseCommand):
     edit_message = pyqtSignal(object)
     unded = pyqtSignal(MessageModel)
-    def __init__(self, id: int, db: BaseClientMessageRepository, message: str):
+    def __init__(self, id: str, db: BaseClientMessageRepository, message: str) -> None:
         super().__init__()
         self.id = id
         self.db = db
@@ -15,7 +15,7 @@ class LocalEditCommand(BaseCommand):
         self.old_massege = None
         self.new_message = None
 
-    def execute(self):
+    def execute(self) -> None:
         output = self.db.edit_message(self.id, self.message)
         if output is not None:
             old, edited = output
@@ -26,7 +26,7 @@ class LocalEditCommand(BaseCommand):
                 pass
         self.edit_message.emit(self.new_message)
 
-    def undo(self):
+    def undo(self) -> None:
         output = self.db.edit_message(self.id, self.old_massege.message)
         if output is not None:
             old, edited = output

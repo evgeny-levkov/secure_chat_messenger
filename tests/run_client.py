@@ -2,7 +2,7 @@ import asyncio
 import json
 
 
-async def main():
+async def main() -> None:
     reader, writer = await asyncio.open_connection('127.0.0.1', 8888)
     message = (json.dumps({'status': 'auth', 'name': 'Женя', 'email': 'zhenya@test.com'}) + '\n').encode('utf-8')
     writer.write(message)

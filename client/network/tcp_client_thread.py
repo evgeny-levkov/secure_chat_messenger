@@ -4,10 +4,10 @@ import asyncio
 
 
 class TcpClientThread(QThread):
-    def __init__(self, worker: TcpClientWorker):
+    def __init__(self, worker: TcpClientWorker) -> None:
         super().__init__()
         self.worker = worker
 
-    def run(self):
+    def run(self) -> None:
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self.worker.read())

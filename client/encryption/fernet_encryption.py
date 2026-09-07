@@ -8,7 +8,7 @@ class FernetEncryption(BaseEncryption):
     def __init__(self, key=None) -> None:
         self.key = key
 
-    def generate_key(self):
+    def generate_key(self) -> None:
         self.key = Fernet.generate_key()
 
     def encryption(self, text: str) -> str:

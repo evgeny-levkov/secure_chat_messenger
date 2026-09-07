@@ -3,7 +3,7 @@ from server.network.tcp_server import TcpServer
 from server.services.chat_manager import ChatManager
 from server.repository.db_repository.sqlite_server_message_repository import SqLiteServerMessageRepository
 
-async def main():
+async def main() -> None:
     db = SqLiteServerMessageRepository('greenhouse_sensors.db')
     server = TcpServer()
     manager = ChatManager(server, db)

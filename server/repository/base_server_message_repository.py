@@ -24,7 +24,7 @@ class BaseMessageRepository(ABC):
         pass
 
     @abstractmethod
-    def add_new_user(self, name: str, email: str, public_key: str) ->int |  None:
+    def add_new_user(self, name: str, email: str, public_key: str) -> int |  None:
         pass
 
     @abstractmethod

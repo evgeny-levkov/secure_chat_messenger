@@ -10,7 +10,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
         self.db = db
         self.connection()
 
-    def connection(self):
+    def connection(self) -> None:
         try:
             self.conn = sqlite3.connect(self.db, check_same_thread = False)
         except Exception as e:
@@ -63,7 +63,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
             return None
         return res
 
-    def add_new_user(self, name: str, email: str, public_key: str) ->int |  None:
+    def add_new_user(self, name: str, email: str, public_key: str) -> int |  None:
         try:
             cur = self.conn.cursor()
             new_id = cur.execute('insert into users(user, email, public_key) ' \
@@ -97,7 +97,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
             print(f'Ошибка при получении public_key: {e}')
             return None
 
-    def delete_message(self, uuid):
+    def delete_message(self, uuid: str)  -> MessageModel | None:
         try:
             cur = self.conn.cursor()
             output = cur.execute('DELETE FROM messages WHERE uuid = ? '\
@@ -112,7 +112,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
                 print(f"Ошибка при удалении сообщения: {e}")
                 return None
 
-    def edit_message(self, id, message):
+    def edit_message(self, id: str, message: str) -> tuple[MessageModel, MessageModel] | None:
         try:
             cur = self.conn.cursor()
             old_res = cur.execute('SELECT * from messages WHERE uuid = ?', (id,)).fetchone()

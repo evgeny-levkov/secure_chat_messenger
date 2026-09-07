@@ -12,7 +12,7 @@ class TcpClientWorker(QObject):
         self.reader = None
         self.writer = None
 
-    async def connect(self):
+    async def connect(self) -> None:
         self.reader, self.writer = await asyncio.open_connection(self.host, self.port)
         self.connection.emit(True)
 

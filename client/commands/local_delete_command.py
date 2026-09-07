@@ -7,7 +7,7 @@ from common.models.message_model import MessageModel
 class LocalDeleteCommand(BaseCommand):
     delete = pyqtSignal(object)
     unded = pyqtSignal(MessageModel)
-    def __init__(self, id: int, db: BaseClientMessageRepository):
+    def __init__(self, id: str, db: BaseClientMessageRepository) -> None:
         super().__init__()
         self.id = id
         self.db = db
