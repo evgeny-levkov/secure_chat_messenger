@@ -30,3 +30,11 @@ class BaseMessageRepository(ABC):
     @abstractmethod
     def get_public_key(self, user_id: int) -> str | None:
         pass
+
+    @abstractmethod
+    def delete_message(self, id: str) -> MessageModel | None:
+         pass
+
+    @abstractmethod
+    def edit_message(self, id: str, message: str) -> tuple[MessageModel, MessageModel] | None:
+         pass

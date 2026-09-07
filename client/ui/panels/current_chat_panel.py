@@ -42,6 +42,8 @@ class CurrentChatPanel(QWidget):
         self.viewmodel.edited_message.connect(self.update_changed_messages)
         self.viewmodel.undo_delete_message.connect(self.update_changed_messages)
         self.viewmodel.undo_edit_message.connect(self.update_changed_messages)
+        self.viewmodel.server_deleted_message.connect(self.server_delete_message)
+        self.viewmodel.server_edited_message.connect(self.server_edite_message)
         self.shortcut_undo = QShortcut(QKeySequence("Ctrl+Z"), self)
         self.shortcut_undo.activated.connect(self.undo)
         self.shortcut_redo = QShortcut(QKeySequence("Ctrl+Shift+Z"), self)
@@ -56,15 +58,15 @@ class CurrentChatPanel(QWidget):
             if messege.sender == self.viewmodel.my_id:
                 smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
                 smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignRight)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.id)
+                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
                 smb_messege.setData(Qt.ItemDataRole.UserRole+1, messege.message)
                 self.history_message.addItem(smb_messege)
             else:
                 smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
                 smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignLeft)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.id)
+                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
                 self.history_message.addItem(smb_messege)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.id)
+                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
                 smb_messege.setData(Qt.ItemDataRole.UserRole+1, messege.message)
 
         hisory.clear()
@@ -122,3 +124,9 @@ class CurrentChatPanel(QWidget):
 
     def redo(self):
         self.viewmodel.redo()
+
+    def server_delete_message(self, uuid: str):
+        self.update_changed_messages(uuid)
+
+    def server_edite_message(self, uuid: str, message: str):
+        self.update_changed_messages(uuid, message)

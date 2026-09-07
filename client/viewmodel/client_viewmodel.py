@@ -11,16 +11,19 @@ import base64
 from ..commands.local_command_manager import LocalCommandManager
 from ..commands.local_edit_command import LocalEditCommand
 from ..commands.local_delete_command import LocalDeleteCommand
+from uuid import uuid4
 
 
 class ClientViewModel(QObject):
     connect_sign = pyqtSignal(bool)
     authorized = pyqtSignal(bool, int)
-    message = pyqtSignal(datetime, int, str, str, str)
+    message = pyqtSignal(str, datetime, int, str, str, str)
     edited_message = pyqtSignal(object)
     undo_edit_message = pyqtSignal(MessageModel)
     deleted_message = pyqtSignal(object)
     undo_delete_message = pyqtSignal(MessageModel)
+    server_deleted_message = pyqtSignal(str)
+    server_edited_message = pyqtSignal(str, str)
     def __init__(self, client_service: BaseClientService, db: BaseClientMessageRepository) -> None:
         super().__init__()
         self.client_service = client_service
@@ -28,6 +31,8 @@ class ClientViewModel(QObject):
         self.client_service.authorization.connect(self._get_authorization_res)
         self.client_service.message.connect(self._get_send_message)
         self.client_service.public_key_received.connect(self._on_public_key_received)
+        self.client_service.deleted.connect(self.server_delete_handle)
+        self.client_service.edited.connect(self.server_edit_handler)
         self.db = db
         self.encrytion_keys: dict[int, BaseEncryption] = {}
         self.recipients_public_key: dict[int, str] = {}
@@ -48,6 +53,7 @@ class ClientViewModel(QObject):
         self.authorized.emit(sig, user_id)
 
     def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str):
+        uuid = str(uuid4())
         time_now = datetime.now()
         if self.encrytion_keys.get(recipient_id, None) == None:    
             fernet: BaseEncryption = EncryptionFactory.get_class(encryption)
@@ -62,11 +68,12 @@ class ClientViewModel(QObject):
         else:
             new_message = message
             enc_key_str = None
-        self.db.save_message(MessageModel(message, time_now, self.my_id, sender_name, recipient_id, encryption, enc_key_str))
-        self.client_service.send_message(new_message, recipient_id, sender_name, encryption, enc_key_str)
-        self.message.emit(time_now, self.my_id, sender_name, message, encryption)
+        self.db.save_message(MessageModel(uuid, message, time_now, self.my_id, sender_name, recipient_id, encryption, enc_key_str))
+        self.client_service.send_message(uuid, new_message, recipient_id, sender_name, encryption, enc_key_str)
+        self.message.emit(uuid, time_now, self.my_id, sender_name, message, encryption)
         
     def _get_send_message(self, message: MessageModel) -> None:
+        uuid = message.uuid
         time = message.time
         sender = message.sender
         encryption = message.encryption
@@ -84,7 +91,7 @@ class ClientViewModel(QObject):
             enc_key_str = None
         message.message = new_message
         self.db.save_message(message)
-        self.message.emit(time, sender, sender_name, new_message, encryption)
+        self.message.emit(uuid, time, sender, sender_name, new_message, encryption)
 
     def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:
         self.client_service.request_public_key(id_recipient)
@@ -103,19 +110,22 @@ class ClientViewModel(QObject):
         self.command.execute(editor)
 
     def edit_message_handler(self, new_message: MessageModel | None):
+        self.client_service.send_edit_message(new_message.uuid, new_message.recipient, new_message.message)
         self.edited_message.emit(new_message)
 
     def unded_edit_handler(self, old_message: MessageModel):
         self.undo_edit_message.emit(old_message)
 
-    def delete_message(self, id: int):
+    def delete_message(self, id: str):
         deleter = LocalDeleteCommand(id, self.db)
         deleter.delete.connect(self.delete_message_handler)
         deleter.unded.connect(self.unded_delete_handler)
         self.command.execute(deleter)
 
     def delete_message_handler(self, delete_message: MessageModel | None):
-        self.deleted_message.emit(delete_message)
+        if delete_message:
+            self.client_service.send_delete_message(delete_message.uuid, delete_message.recipient)
+            self.deleted_message.emit(delete_message)
 
     def unded_delete_handler(self, old_message: MessageModel):
         self.undo_delete_message.emit(old_message)
@@ -125,3 +135,11 @@ class ClientViewModel(QObject):
 
     def redo(self):
         self.command.redo()
+
+    def server_delete_handle(self, uuid: str):
+        self.db.delete_message(uuid)
+        self.server_deleted_message.emit(uuid)
+
+    def server_edit_handler(self, uuid: str, message: str):
+        self.db.edit_message(uuid, message)
+        self.server_edited_message.emit(uuid, message)

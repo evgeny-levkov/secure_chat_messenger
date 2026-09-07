@@ -20,11 +20,11 @@ class BaseClientMessageRepository(ABC):
             pass
 
     @abstractmethod
-    def delete_message(self, id: int) -> MessageModel | None:
+    def delete_message(self, id: str) -> MessageModel | None:
          pass
 
     @abstractmethod
-    def edit_message(self, id: int, message: str) -> tuple[MessageModel, MessageModel] | None:
+    def edit_message(self, id: str, message: str) -> tuple[MessageModel, MessageModel] | None:
          pass
 
     @abstractmethod

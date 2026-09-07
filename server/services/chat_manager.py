@@ -52,7 +52,7 @@ class ChatManager(BaseObserver):
                         print('Клиенты не заригестрированы!!!')
                         return None
                     else:
-                        client_message = MessageModel(mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.sender_name, 
+                        client_message = MessageModel(mes_req.uuid, mes_req.message, datetime.now(), self.senders.get(client_id), mes_req.sender_name, 
                                                       mes_req.recipient_id, mes_req.encryption, mes_req.encryption_key)
                         server_req = (json.dumps(client_message.to_dict()) + '\n').encode('utf-8') 
                         await self.server.client_write(self.recipient.get(mes_req.recipient_id), server_req)
@@ -69,6 +69,21 @@ class ChatManager(BaseObserver):
                     server_req = (json.dumps({f'status': 'return_public_key', 'public_key': user_public_key,
                                               'recipient': json_message['recipient']}) +  '\n').encode('utf-8')
                     await self.server.client_write(client_id, server_req)
+            elif json_message.get('status', None) == 'delete_message':
+                if json_message.get('uuid', None) != None and json_message.get('recipient') != None:
+                    self.db.delete_message(json_message['uuid'])
+                    server_req =  (json.dumps({'status': 'delete_message', 'uuid': json_message['uuid']}) + '\n').encode('utf-8')
+                    await self.server.client_write(self.recipient.get(json_message['recipient']), server_req)
+                else:
+                    return None
+            elif json_message.get('status', None) == 'edit_message':
+                if json_message.get('uuid', None) != None and json_message.get('recipient') != None and json_message.get('message') != None:
+                    self.db.edit_message(json_message['uuid'], json_message['message'])
+                    server_req = (json.dumps({'status': 'edit_message', 'uuid': json_message['uuid'], 'message': json_message['message']})
+                                   + '\n').encode('utf-8')
+                    await self.server.client_write(self.recipient.get(json_message['recipient']), server_req)
+                else:
+                    return None
         except Exception as e:
             print(f'Ошибка обработки ответа: {e}')
             return None

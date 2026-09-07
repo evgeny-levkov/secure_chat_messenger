@@ -15,6 +15,8 @@ class TcpClientService(BaseClientService):
     authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     public_key_received = pyqtSignal(str, int)
+    deleted = pyqtSignal(str | None)
+    edited = pyqtSignal(str | None, str | None)
     def __init__(self, public_key: str, private_key: str):
         super().__init__()
         self.public_key = public_key
@@ -38,15 +40,28 @@ class TcpClientService(BaseClientService):
         auth_message = json.dumps({'status': 'get_public_key', 'recipient': recipient_id})
         self.tcp_worker.write(auth_message)
 
-    def send_message(self, message: str, recipient_id: int, sender_name: str, encryption: str, encryption_key: str) -> None:
-        send_message = json.dumps(MessageRequest(message, recipient_id, sender_name, encryption, encryption_key).to_dict())
+    def send_message(self, uuid: str, message: str, recipient_id: int, sender_name: str, encryption: str, encryption_key: str) -> None:
+        send_message = json.dumps(MessageRequest(uuid, message, recipient_id, sender_name, encryption, encryption_key).to_dict())
         self.tcp_worker.write(send_message)
 
     def _on_message_recive(self, server_answer: str | bool) -> None:
         dict_server_answer: dict = json.loads(server_answer)
         if dict_server_answer.get('status', None) == 'auth_success':
             self.authorization.emit(True, dict_server_answer.get('user_id',None))
-        elif dict_server_answer.get('message', None) != None:
-            self.message.emit(MessageModel.from_dict(dict_server_answer))
         elif dict_server_answer.get('status', None) == 'return_public_key':
             self.public_key_received.emit(dict_server_answer.get('public_key', None), dict_server_answer.get('recipient', None))
+        elif dict_server_answer.get('status', None) == 'delete_message':
+            self.deleted.emit(dict_server_answer.get('uuid', None))
+        elif dict_server_answer.get('status', None) == 'edit_message':
+            self.edited.emit(dict_server_answer.get('uuid', None), dict_server_answer.get('message', None))
+        elif dict_server_answer.get('message', None) != None:
+            self.message.emit(MessageModel.from_dict(dict_server_answer))
+        
+
+    def send_delete_message(self, uuid: str, recipient_id: int):
+        send_message = json.dumps({'status': 'delete_message', 'uuid': uuid, 'recipient': recipient_id})
+        self.tcp_worker.write(send_message)
+
+    def send_edit_message(self, uuid: str, recipient_id: int, message: str):
+        send_message = json.dumps({'status': 'edit_message', 'uuid': uuid, 'recipient': recipient_id, 'message': message})
+        self.tcp_worker.write(send_message)

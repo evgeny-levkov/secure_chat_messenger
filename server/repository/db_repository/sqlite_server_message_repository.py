@@ -17,7 +17,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
             print(f"Ошибка подключения к БД: {e}")
         try:
             cur = self.conn.cursor()
-            cur.execute('create table if not exists messages(id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT, time DATETIME, ' \
+            cur.execute('create table if not exists messages(uuid VARCHAR PRIMARY KEY, message TEXT, time DATETIME, ' \
                 'sender INT, sender_name VARCHAR(255), recipient INT, encryption VARCHAR(255))')
             cur.execute('create table if not exists users(id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, email TEXT, public_key TEXT)')
         except Exception as e:
@@ -25,8 +25,8 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
 
     def save_history(self, message: MessageModel) -> None:
         cur = self.conn.cursor()
-        cur.execute('insert into messages(id, message, time, sender, sender_name, recipient, encryption) values (?, ?, ?, ?, ?, ?, ?)', 
-                    (message.id, message.message, message.time, message.sender, message.sender_name, message.recipient, message.encryption))
+        cur.execute('insert into messages(uuid, message, time, sender, sender_name, recipient, encryption) values (?, ?, ?, ?, ?, ?, ?)', 
+                    (message.uuid, message.message, message.time, message.sender, message.sender_name, message.recipient, message.encryption))
         self.conn.commit()
 
     def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:
@@ -38,7 +38,7 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
             if output is not None:
                 for messages in output:
                     res.append(MessageModel(message=messages[1], time=datetime.datetime.fromisoformat(messages[2]), sender=messages[3], 
-                                            sender_name=messages[4], recipient=messages[5], encryption=messages[6], id=messages[0]))
+                                            sender_name=messages[4], recipient=messages[5], encryption=messages[6], uuid=messages[0]))
             else:
                 return None
         except Exception as e:
@@ -95,4 +95,37 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
                 return None
         except Exception as e:
             print(f'Ошибка при получении public_key: {e}')
+            return None
+
+    def delete_message(self, uuid):
+        try:
+            cur = self.conn.cursor()
+            output = cur.execute('DELETE FROM messages WHERE uuid = ? '\
+                        'RETURNING uuid, message, time, sender, sender_name, recipient, encryption', (uuid,)).fetchall()
+            self.conn.commit()
+            if output:
+                return MessageModel(message=output[0][1], time=datetime.datetime.fromisoformat(output[0][2]), sender=output[0][3], 
+                                                    sender_name=output[0][4], recipient=output[0][5], encryption=output[0][6], uuid=output[0][0])
+            else:
+                return None
+        except Exception as e:
+                print(f"Ошибка при удалении сообщения: {e}")
+                return None
+
+    def edit_message(self, id, message):
+        try:
+            cur = self.conn.cursor()
+            old_res = cur.execute('SELECT * from messages WHERE uuid = ?', (id,)).fetchone()
+            new_res = cur.execute('UPDATE messages SET message = ? WHERE uuid = ? ' \
+            'RETURNING uuid, message, time, sender, sender_name, recipient, encryption', (message, id)).fetchone()
+            self.conn.commit()
+            if new_res and old_res:
+                return (MessageModel(message=old_res[1], time=datetime.datetime.fromisoformat(old_res[2]), sender=old_res[3], 
+                            sender_name=old_res[4], recipient=old_res[5], encryption=old_res[6], uuid=old_res[0]),
+                        MessageModel(message=new_res[1], time=datetime.datetime.fromisoformat(new_res[2]), sender=new_res[3], 
+                            sender_name=new_res[4], recipient=new_res[5], encryption=new_res[6], uuid=new_res[0]))
+            else:
+                return None
+        except Exception as e:
+            print(f"Ошибка при изменении сообщения: {e}")
             return None
