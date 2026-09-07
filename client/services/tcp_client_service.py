@@ -15,8 +15,8 @@ class TcpClientService(BaseClientService):
     authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     public_key_received = pyqtSignal(str, int)
-    deleted = pyqtSignal(str | None)
-    edited = pyqtSignal(str | None, str | None)
+    deleted = pyqtSignal(str)
+    edited = pyqtSignal(str, str)
     def __init__(self, public_key: str, private_key: str):
         super().__init__()
         self.public_key = public_key

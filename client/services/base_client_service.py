@@ -6,8 +6,8 @@ class BaseClientService(QObject):
     authorization = pyqtSignal(bool, int)
     message = pyqtSignal(object)
     public_key_received = pyqtSignal(str, int)
-    deleted = pyqtSignal(str | None)
-    edited = pyqtSignal(str | None, str | None)
+    deleted = pyqtSignal(str)
+    edited = pyqtSignal(str, str)
     def __init__(self):
         super().__init__()
 

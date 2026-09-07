@@ -78,7 +78,7 @@ class ClientViewModel(QObject):
         sender = message.sender
         encryption = message.encryption
         sender_name = message.sender_name
-        if encryption != "Без шифрования":
+        if encryption != "Без шифрования" and message.encryption_key is not None:
             rsa_private = RSA.import_key(self.client_service.private_key)
             cipher_rsa = PKCS1_OAEP.new(rsa_private)
             enc_key = base64.b64decode(message.encryption_key)
@@ -114,6 +114,7 @@ class ClientViewModel(QObject):
         self.edited_message.emit(new_message)
 
     def unded_edit_handler(self, old_message: MessageModel):
+        self.client_service.send_edit_message(old_message.uuid, old_message.recipient, old_message.message)
         self.undo_edit_message.emit(old_message)
 
     def delete_message(self, id: str):
@@ -128,6 +129,17 @@ class ClientViewModel(QObject):
             self.deleted_message.emit(delete_message)
 
     def unded_delete_handler(self, old_message: MessageModel):
+        if old_message.encryption != "Без шифрования":
+            rsa = RSA.importKey(self.recipients_public_key[old_message.recipient])
+            cipher_rsa = PKCS1_OAEP.new(rsa)
+            new_encryption = cipher_rsa.encrypt(self.encrytion_keys[old_message.recipient].key)
+            enc_key_str = base64.b64encode(new_encryption).decode('utf-8')
+            message = self.encrytion_keys[old_message.recipient].encryption(old_message.message)
+        else:
+            message = old_message.message
+            enc_key_str = old_message.encryption_key
+        self.client_service.send_message(old_message.uuid, message, old_message.recipient, old_message.sender_name,
+                    old_message.encryption, enc_key_str)
         self.undo_delete_message.emit(old_message)
 
     def undo(self):
