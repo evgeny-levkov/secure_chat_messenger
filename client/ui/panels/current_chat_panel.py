@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem, 
 from PyQt6.QtGui import QKeySequence, QShortcut
 from PyQt6.QtGui import QShortcut, QKeySequence
 from ...viewmodel.client_viewmodel import ClientViewModel
+from ..widgets.message_widget import MessageWidget
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 import datetime
 
@@ -51,25 +52,27 @@ class CurrentChatPanel(QWidget):
         self.setLayout(self.main_box)
 
     def get_history(self, selected_user_id: int) -> None:
-        self.history_message.clear()
+        if self.history_message is not None: 
+            self.history_message.clear()
         self.selected_user_id = selected_user_id
         hisory = self.viewmodel.get_history(self.viewmodel.my_id, selected_user_id)
-        for messege in hisory:
+        for messege in (hisory or []):
             if messege.sender == self.viewmodel.my_id:
-                smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
-                smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignRight)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
-                smb_messege.setData(Qt.ItemDataRole.UserRole+1, messege.message)
-                self.history_message.addItem(smb_messege)
+                item = QListWidgetItem()
+                widget = MessageWidget(messege, True)
+                item.setSizeHint(widget.sizeHint())
+                item.setData(Qt.ItemDataRole.UserRole, messege.uuid)
+                item.setData(Qt.ItemDataRole.UserRole+1, messege.message)
+                self.history_message.addItem(item)
+                self.history_message.setItemWidget(item, widget)
             else:
-                smb_messege = QListWidgetItem(f'{messege.sender_name}: {messege.message}')
-                smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignLeft)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
-                self.history_message.addItem(smb_messege)
-                smb_messege.setData(Qt.ItemDataRole.UserRole, messege.uuid)
-                smb_messege.setData(Qt.ItemDataRole.UserRole+1, messege.message)
-
-        hisory.clear()
+                item = QListWidgetItem()
+                widget = MessageWidget(messege, False)
+                item.setSizeHint(widget.sizeHint())
+                item.setData(Qt.ItemDataRole.UserRole, messege.uuid)
+                item.setData(Qt.ItemDataRole.UserRole+1, messege.message)
+                self.history_message.addItem(item)
+                self.history_message.setItemWidget(item, widget)
 
     def send_message(self) -> None:
         if self.edited_message_text is not None:

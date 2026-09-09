@@ -1,4 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QFrame
+from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
 from ...viewmodel.client_viewmodel import ClientViewModel
 
@@ -13,6 +14,7 @@ class AuthWindow(QWidget):
 
     def initialize_ui(self) -> None:
         self.main_layout = QVBoxLayout()
+        self.card = QFrame()
         self.name_label = QLabel('Введите имя пользователя:')
         self.name_widget = QLineEdit()
         self.email_label = QLabel('Введите email:')
@@ -20,11 +22,17 @@ class AuthWindow(QWidget):
         self.auth_button = QPushButton('Авторизоваться')
         self.auth_button.clicked.connect(self.authorize)
 
-        self.main_layout.addWidget(self.name_label)
-        self.main_layout.addWidget(self.name_widget)
-        self.main_layout.addWidget(self.email_label)
-        self.main_layout.addWidget(self.email_widget)
-        self.main_layout.addWidget(self.auth_button)
+        self.card_box = QVBoxLayout()
+        self.card_box.addWidget(self.name_label)
+        self.card_box.addWidget(self.name_widget)
+        self.card_box.addWidget(self.email_label)
+        self.card_box.addWidget(self.email_widget)
+        self.card_box.addWidget(self.auth_button)
+        self.card.setLayout(self.card_box)
+        self.card.setFixedWidth(500)
+        self.main_layout.addStretch()
+        self.main_layout.addWidget(self.card, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.main_layout.addStretch()
 
         self.setLayout(self.main_layout)
 

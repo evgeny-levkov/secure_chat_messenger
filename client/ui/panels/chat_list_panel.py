@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QListWidget, QVBoxLayout, QLabel, QListWidgetItem, QLineEdit, QPushButton, QMessageBox
+from PyQt6.QtWidgets import QWidget, QListWidget, QVBoxLayout, QLabel, QListWidgetItem, QLineEdit, QPushButton, QMessageBox, QHBoxLayout
 from ...viewmodel.client_viewmodel import ClientViewModel
 from PyQt6.QtCore import Qt, pyqtSignal
 
@@ -22,12 +22,21 @@ class ChatListPanel(QWidget):
         self.contact_id = QLineEdit()
         self.contact_id.setPlaceholderText('Введите id пользователя')
         self.add_contact_button = QPushButton('+')
+        self.find_box = QHBoxLayout()
+        self.find_user_line = QLineEdit()
+        self.find_user_line.setPlaceholderText('Поиск')
+        self.clear_button = QPushButton('✖')
+        self.clear_button.clicked.connect(self.clear_find_line)
+        self.find_user_line.textChanged.connect(self.find_user)
         self.add_contact_button.clicked.connect(self.add_contact)
         self.main_list_box = QListWidget()
         self.main_box.addWidget(self.label_add_contact)
         self.main_box.addWidget(self.label_my_id)
         self.main_box.addWidget(self.contact_id)
         self.main_box.addWidget(self.add_contact_button)
+        self.find_box.addWidget(self.find_user_line)
+        self.find_box.addWidget(self.clear_button)
+        self.main_box.addLayout(self.find_box)
         self.main_list_box.itemClicked.connect(self.get_choosen_chat)
         self.main_box.addWidget(self.main_list_box)
         self.setLayout(self.main_box)
@@ -63,3 +72,14 @@ class ChatListPanel(QWidget):
 
     def user_not_founded(self, status :str) -> None:
         QMessageBox.critical(self, 'Ошибка', 'User не зарегестрирован')
+
+    def find_user(self, text: str) -> None:
+        for i in range (0, self.main_list_box.count()):
+            item = self.main_list_box.item(i)
+            if isinstance(item, QListWidgetItem) and text.lower() not in item.text().lower():
+                self.main_list_box.setRowHidden(i, True)
+            else:
+                self.main_list_box.setRowHidden(i, False)
+
+    def clear_find_line(self):
+        self.find_user_line.clear()
