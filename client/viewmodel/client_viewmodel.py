@@ -17,7 +17,7 @@ from uuid import uuid4
 class ClientViewModel(QObject):
     connect_sign = pyqtSignal(bool)
     authorized = pyqtSignal(bool, int)
-    message = pyqtSignal(str, datetime, int, str, str, str)
+    message = pyqtSignal(MessageModel)
     edited_message = pyqtSignal(object)
     undo_edit_message = pyqtSignal(MessageModel)
     deleted_message = pyqtSignal(object)
@@ -74,7 +74,7 @@ class ClientViewModel(QObject):
             enc_key_str = None
         self.db.save_message(MessageModel(uuid, message, time_now, self.my_id, sender_name, recipient_id, encryption, enc_key_str))
         self.client_service.send_message(uuid, new_message, recipient_id, sender_name, encryption, enc_key_str)
-        self.message.emit(uuid, time_now, self.my_id, sender_name, message, encryption)
+        self.message.emit(MessageModel(uuid, message, time_now, self.my_id, sender_name, recipient_id, encryption, enc_key_str))
         
     def _get_send_message(self, message: MessageModel) -> None:
         uuid = message.uuid
@@ -95,7 +95,7 @@ class ClientViewModel(QObject):
             enc_key_str = None
         message.message = new_message
         self.db.save_message(message)
-        self.message.emit(uuid, time, sender, sender_name, new_message, encryption)
+        self.message.emit(message)
 
     def get_history(self, id_senders: int, id_recipient: int) -> list[MessageModel] | None:
         self.client_service.request_public_key(id_recipient)

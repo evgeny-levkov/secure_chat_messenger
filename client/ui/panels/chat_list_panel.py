@@ -81,5 +81,5 @@ class ChatListPanel(QWidget):
             else:
                 self.main_list_box.setRowHidden(i, False)
 
-    def clear_find_line(self):
+    def clear_find_line(self) -> None:
         self.find_user_line.clear()

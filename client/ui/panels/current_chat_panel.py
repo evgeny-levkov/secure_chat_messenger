@@ -3,6 +3,7 @@ from PyQt6.QtGui import QKeySequence, QShortcut
 from PyQt6.QtGui import QShortcut, QKeySequence
 from ...viewmodel.client_viewmodel import ClientViewModel
 from ..widgets.message_widget import MessageWidget
+from common.models.message_model import MessageModel
 from PyQt6.QtCore import Qt, pyqtSignal, QPoint
 import datetime
 
@@ -15,9 +16,9 @@ class CurrentChatPanel(QWidget):
         super().__init__()
         self.viewmodel = viewmodel
         self.initialize_ui()
-        self.selected_user_id = None
-        self.edited_message_text = None
-        self.edited_id = None
+        self.selected_user_id: int | None = None
+        self.edited_message_text: str | None = None
+        self.edited_id: str | None = None
 
     def initialize_ui(self) -> None:
         self.main_box = QVBoxLayout()
@@ -38,7 +39,7 @@ class CurrentChatPanel(QWidget):
         self.lower_panel.addWidget(self.fernet)
         self.main_box.addWidget(self.history_message)
         self.main_box.addLayout(self.lower_panel)
-        self.viewmodel.message.connect(self.update_changed_messages)
+        self.viewmodel.message.connect(self.update_my_message)
         self.viewmodel.deleted_message.connect(self.update_changed_messages)
         self.viewmodel.edited_message.connect(self.update_changed_messages)
         self.viewmodel.undo_delete_message.connect(self.update_changed_messages)
@@ -73,6 +74,7 @@ class CurrentChatPanel(QWidget):
                 item.setData(Qt.ItemDataRole.UserRole+1, messege.message)
                 self.history_message.addItem(item)
                 self.history_message.setItemWidget(item, widget)
+        self.history_message.scrollToBottom()
 
     def send_message(self) -> None:
         if self.edited_message_text is not None:
@@ -84,20 +86,26 @@ class CurrentChatPanel(QWidget):
             self.viewmodel.send_message(self.new_messege.text(), self.selected_user_id, self.viewmodel.my_name, self.fernet.currentText())
             self.new_messege.clear()
 
-    def update_my_message(self, time_now: datetime, my_id: int, sender_name: str, message: str) -> None:
-        if my_id != self.viewmodel.my_id and my_id != self.selected_user_id:
+    def update_my_message(self, message: MessageModel) -> None:
+        if message.sender != self.viewmodel.my_id and message.sender != self.selected_user_id:
             return
-        elif my_id == self.viewmodel.my_id:
-            smb_messege = QListWidgetItem(f'{sender_name}: {message}')
-            smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignRight)
-            smb_messege.setData(Qt.ItemDataRole.UserRole, )
-            smb_messege.setData(Qt.ItemDataRole.UserRole+1, message)
-            self.history_message.addItem(smb_messege)
+        if message.sender == self.viewmodel.my_id:
+            item = QListWidgetItem()
+            widget = MessageWidget(message, True)
+            item.setSizeHint(widget.sizeHint())
+            item.setData(Qt.ItemDataRole.UserRole, message.uuid)
+            item.setData(Qt.ItemDataRole.UserRole+1, message.message)
+            self.history_message.addItem(item)
+            self.history_message.setItemWidget(item, widget)
         else:
-            smb_messege = QListWidgetItem(f'{sender_name}: {message}')
-            smb_messege.setTextAlignment(Qt.AlignmentFlag.AlignLeft)
-            self.history_message.addItem(smb_messege)
-        
+            item = QListWidgetItem()
+            widget = MessageWidget(message, False)
+            item.setSizeHint(widget.sizeHint())
+            item.setData(Qt.ItemDataRole.UserRole, message.uuid)
+            item.setData(Qt.ItemDataRole.UserRole+1, message.message)
+            self.history_message.addItem(item)
+            self.history_message.setItemWidget(item, widget)
+        self.history_message.scrollToBottom()
 
     def _show_context_menu(self, pos: QPoint) -> None:
         item = self.history_message.itemAt(pos)

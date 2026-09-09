@@ -5,6 +5,7 @@ from .avatar_widget import AvatarWidget
 
 
 class MessageWidget(QWidget):
+    MAXLENSTR: int =  40
     def __init__(self, message: MessageModel, is_outgoing: bool) -> None:
         super().__init__()
         self.message = message
@@ -21,6 +22,7 @@ class MessageWidget(QWidget):
         self.bubble.setContentsMargins(0,0,0,0)
         self.box = QVBoxLayout()
         self.box.setContentsMargins(1,1,1,1)
+        self.message.message = self.split_text(self.message.message)
         self.text = QLabel(self.message.message)
         self.text.setWordWrap(True)
         self.time = QLabel(str(self.message.time.strftime('%H:%M')))
@@ -38,3 +40,12 @@ class MessageWidget(QWidget):
             self.main_box.addWidget(self.bubble)
             self.main_box.addStretch()
         self.setLayout(self.main_box)
+
+    def split_text(self, text: str) -> str:
+        list_text = text.split(' ')
+        new_list = []
+        for s in list_text:
+            if len(s) > self.MAXLENSTR:
+                s = '\u200b'.join([s[i:i+self.MAXLENSTR] for i in range(0, len(s), self.MAXLENSTR)])
+            new_list.append(s)
+        return " ".join(new_list)
