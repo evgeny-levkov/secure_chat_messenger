@@ -38,3 +38,7 @@ class BaseMessageRepository(ABC):
     @abstractmethod
     def edit_message(self, id: str, message: str) -> tuple[MessageModel, MessageModel] | None:
          pass
+
+    @abstractmethod
+    def found_user(self, id: int) -> UserModel | None:
+        pass

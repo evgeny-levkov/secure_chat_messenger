@@ -84,6 +84,17 @@ class ChatManager(BaseObserver):
                     await self.server.client_write(self.recipient.get(json_message['recipient']), server_req)
                 else:
                     return None
+            elif json_message.get('status', None) == 'found_user':
+                if json_message.get('id') != None:
+                    user = self.db.found_user(json_message.get('id'))
+                    if user != None:
+                        server_req = (json.dumps({'status': 'take_user_name', 'name': user.user, 'id': user.id}) + '\n').encode('utf-8')
+                        await self.server.client_write(client_id, server_req)
+                    else:
+                        server_req = (json.dumps({'status': 'user_not_founded'}) + '\n').encode('utf-8')
+                        await self.server.client_write(client_id, server_req)
+                else:
+                    return None
         except Exception as e:
             print(f'Ошибка обработки ответа: {e}')
             return None

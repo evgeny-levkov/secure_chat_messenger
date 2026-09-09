@@ -17,6 +17,8 @@ class TcpClientService(BaseClientService):
     public_key_received = pyqtSignal(str, int)
     deleted = pyqtSignal(str)
     edited = pyqtSignal(str, str)
+    founded_user = pyqtSignal(int, str)
+    not_founded_user = pyqtSignal(str)
     def __init__(self, public_key: str, private_key: str) -> None:
         super().__init__()
         self.public_key = public_key
@@ -54,9 +56,12 @@ class TcpClientService(BaseClientService):
             self.deleted.emit(dict_server_answer.get('uuid', None))
         elif dict_server_answer.get('status', None) == 'edit_message':
             self.edited.emit(dict_server_answer.get('uuid', None), dict_server_answer.get('message', None))
+        elif dict_server_answer.get('status', None) == 'user_not_founded':
+            self.not_founded_user.emit('User_not_founded')
+        elif dict_server_answer.get('status', None) == 'take_user_name':
+            self.founded_user.emit(dict_server_answer.get('id',None), dict_server_answer.get('name', None))
         elif dict_server_answer.get('message', None) != None:
             self.message.emit(MessageModel.from_dict(dict_server_answer))
-        
 
     def send_delete_message(self, uuid: str, recipient_id: int) -> None:
         send_message = json.dumps({'status': 'delete_message', 'uuid': uuid, 'recipient': recipient_id})
@@ -65,3 +70,7 @@ class TcpClientService(BaseClientService):
     def send_edit_message(self, uuid: str, recipient_id: int, message: str) -> None:
         send_message = json.dumps({'status': 'edit_message', 'uuid': uuid, 'recipient': recipient_id, 'message': message})
         self.tcp_worker.write(send_message)
+
+    def found_user(self, id) -> None:
+        found_user_message = json.dumps({'status': 'found_user', 'id': id})
+        self.tcp_worker.write(found_user_message)

@@ -37,7 +37,6 @@ QLineEdit {
     border-radius: 4px;
     padding: 8px 10px;
     color: #ffffff;
-    -webkit-background-composite: #0078d4;
 }
 
 QLineEdit:focus {
@@ -103,7 +102,6 @@ QComboBox QAbstractItemView {
     background-color: #202020;
     color: #ffffff;
     border: 1px solid #3a3a3a;
-    -webkit-background-composite: #0078d4;
 }
 
 /* Настройки для спинбоксов */

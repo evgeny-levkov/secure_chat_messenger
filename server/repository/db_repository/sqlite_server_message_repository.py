@@ -129,3 +129,15 @@ class SqLiteServerMessageRepository(BaseMessageRepository):
         except Exception as e:
             print(f"Ошибка при изменении сообщения: {e}")
             return None
+
+    def found_user(self, id: int) -> UserModel | None:
+        try:
+            cur = self.conn.cursor()
+            output = cur.execute('SELECT * from users where id = ?', (id,)).fetchone()
+            if output:
+                return UserModel(user=output[1], email=output[2], public_key=output[3], id=output[0])
+            else:
+                return None
+        except Exception as e:
+            print(f'Нет такого user: {e}')
+            return None

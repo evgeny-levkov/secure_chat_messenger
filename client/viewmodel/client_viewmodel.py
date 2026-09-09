@@ -24,6 +24,8 @@ class ClientViewModel(QObject):
     undo_delete_message = pyqtSignal(MessageModel)
     server_deleted_message = pyqtSignal(str)
     server_edited_message = pyqtSignal(str, str)
+    founded_user = pyqtSignal(int, str)
+    not_founded_user = pyqtSignal(str)
     def __init__(self, client_service: BaseClientService, db: BaseClientMessageRepository) -> None:
         super().__init__()
         self.client_service = client_service
@@ -33,6 +35,8 @@ class ClientViewModel(QObject):
         self.client_service.public_key_received.connect(self._on_public_key_received)
         self.client_service.deleted.connect(self.server_delete_handle)
         self.client_service.edited.connect(self.server_edit_handler)
+        self.client_service.founded_user.connect(self.handle_founded_user)
+        self.client_service.not_founded_user.connect(self.handle_not_founded_user)
         self.db = db
         self.encrytion_keys: dict[int, BaseEncryption] = {}
         self.recipients_public_key: dict[int, str] = {}
@@ -155,3 +159,12 @@ class ClientViewModel(QObject):
     def server_edit_handler(self, uuid: str, message: str) -> None:
         self.db.edit_message(uuid, message)
         self.server_edited_message.emit(uuid, message)
+
+    def found_user(self, id: int) -> None:
+        self.client_service.found_user(id)
+
+    def handle_not_founded_user(self, status: str) -> None:
+        self.not_founded_user.emit(status)
+
+    def handle_founded_user(self, id: int, name: str) -> None:
+        self.founded_user.emit(id, name)

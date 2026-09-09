@@ -8,6 +8,8 @@ class BaseClientService(QObject):
     public_key_received = pyqtSignal(str, int)
     deleted = pyqtSignal(str)
     edited = pyqtSignal(str, str)
+    founded_user = pyqtSignal(int, str)
+    not_founded_user = pyqtSignal(str)
     def __init__(self) -> None:
         super().__init__()
 
@@ -33,4 +35,7 @@ class BaseClientService(QObject):
         raise NotImplementedError()
 
     def send_edit_message(self, uuid: str, recipient_id: int, message: str) -> None:
+        raise NotImplementedError()
+
+    def found_user(self, id: int) -> None:
         raise NotImplementedError()

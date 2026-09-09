@@ -8,6 +8,8 @@ class ChatListPanel(QWidget):
     def __init__(self, viewmodel: ClientViewModel) -> None:
         super().__init__()
         self.viewmodel = viewmodel
+        self.viewmodel.founded_user.connect(self.get_user_name)
+        self.viewmodel.not_founded_user.connect(self.user_not_founded)
         self.initialize_ui()
 
     def initialize_ui(self) -> None:
@@ -31,6 +33,7 @@ class ChatListPanel(QWidget):
         self.setLayout(self.main_box)
 
     def fill_chats(self) -> None:
+        self.main_list_box.clear()
         chats = self.viewmodel.get_user_chat(self.viewmodel.my_id)
         self.label_my_id.setText(f'Мой id: {self.viewmodel.my_id}')
         for chat in chats:
@@ -48,10 +51,15 @@ class ChatListPanel(QWidget):
 
     def add_contact(self) -> None:
         try:
-            int_id = int(self.contact_id.text())
-            item = QListWidgetItem(f'User{int_id}')
-            item.setData(Qt.ItemDataRole.UserRole, int_id)
-            self.main_list_box.addItem(item)
+            id = int(self.contact_id.text())
+            self.viewmodel.found_user(id)
         except Exception as e:
-            print("Ошибка при добавлении контакта: {e}")
-            QMessageBox.critical(self, 'Ошибка', 'Не удалось добавить собеседника')
+            QMessageBox.critical(self, 'Ошибка', 'Ошибка в id')
+
+    def get_user_name(self, id: int, name: str) -> None:
+        item = QListWidgetItem(name)
+        item.setData(Qt.ItemDataRole.UserRole, id)
+        self.main_list_box.addItem(item)
+
+    def user_not_founded(self, status :str) -> None:
+        QMessageBox.critical(self, 'Ошибка', 'User не зарегестрирован')
